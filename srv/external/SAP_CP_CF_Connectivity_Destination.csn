@@ -1,0 +1,1415 @@
+{
+ "definitions": {
+  "Destination.Service._Cloud.Foundry_": {
+   "kind": "service",
+   "@Capabilities.BatchSupported": false,
+   "@Capabilities.KeyAsSegmentSupported": true,
+   "@Core.Description": "Destination Service (Cloud Foundry)",
+   "@Core.SchemaVersion": "1.0.0",
+   "@Core.LongDescription": "Destination Service (Cloud Foundry) REST API provides a\nway to read and manage destination configurations (including related certificates and fragments)\nwith auto-retrieving and caching of auth tokens.\n\n<br/><br/>Note: For all requests, the maximum length of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n"
+  },
+  "Destination.Service._Cloud.Foundry_.destinations_": {
+   "kind": "function",
+   "params": {
+    "name": {
+     "type": "cds.String",
+     "@description": "Destination name",
+     "@openapi.in": "path"
+    },
+    "X_user_token": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for authentication type that require user information to be provided (such as OAuth2UserTokenExchange, OAuth2JWTBearer, SAPAssertionSSO (deprecated!) and OAuth2SAMLBearerAssertion). If provided, the value must be a user JWT token in encoded form (see https://tools.ietf.org/html/rfc7519). If provided, it will be used with priority over the Authorization header for the token exchange operation. This means that the user token from this header will be used when determining the user and the tenant subdomain and will also be the token, for which token exchange is performed. If this header is not provided, the user token from the Authorization header will be used. If both this header and X-tenant are provided, the request will fail with HTTP 400 Bad Request.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-user-token"
+    },
+    "X_refresh_token": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for a destination with authentication type OAuth2RefreshToken. This is an additional mandatory parameter that must be provided in the request header. The value must be provided in a refresh token format according to (see https://datatracker.ietf.org/doc/html/rfc6749#section-6) When provided, the refresh token will be used fetch a new refresh and new access token from the configured OAuth2 tokenServiceURL.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-refresh-token"
+    },
+    "X_code": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for a destination with authentication type OAuth2AuthorizationCode. This is a mandatory parameter that must be provided in the request header. The value must be provided in an authorization code format according to (see https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.3) When provided, the authorization code will be exchanged for an access token from the configured OAuth2 tokenServiceURL.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-code"
+    },
+    "X_redirect_uri": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for a destination with authentication type OAuth2AuthorizationCode. This is an optional parameter, that can be provided in the request header. The value must be provided in a URL-encoded link according to (see https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.3). When a redirect URI was registered in the the configured OAuth2 token service during the authorization code grant, the token service will require the same redirect URI to be provided for that authorization code. If provided, the token service will check if the registered redirect URI matches the requested one. If they do, the authorization code is exchanged for an access token. If not provided in the case of a registered redirect URI, the access token exchange will fail.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-redirect-uri"
+    },
+    "X_code_verifier": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for a destination with authentication type OAuth2AuthorizationCode. This is an optional parameter, that can be provided in the request header. The value must be provided in a code verifier format according to (see https://datatracker.ietf.org/doc/html/rfc7636#page-8). When an application has generated a code verifier and provided a code challenge derived from it in the authorization code grant, it must send the code verifier for the token exchange. If provided, the configured OAuth2 token service will verify the code challenge and verifier. If they match, the authorization code will be exchanged for an access token. If not provided in the case of a given code challenge in the authorization code grant, the access token exchange will fail.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-code-verifier"
+    },
+    "X_tenant": {
+     "type": "cds.String",
+     "@description": "This header is only taken into account for destinations with auth type set to OAuth2ClientCredentials. It represents the subdomain of the tenant, on behalf of which to fetch an access token, using the configured credentials. The header is required when tokenServiceURLType is Common and the value will be used to replace the tenant placeholder (or will be added as a subdomain if no placeholder is present). If not provided, an error will be returned. If tokenServiceURLType is Dedicated, the use of this header is forbidden and an error will be returned if provided in the request. If both this header and X-user-token are provided, the request will fail with HTTP 400 Bad Request.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-tenant"
+    },
+    "X_client_assertion": {
+     "type": "cds.String",
+     "@description": "This header is used when OAuth2 Client Assertion Authentication is used. It can be used in pair with the 'X-client-assertion-type' header, specifying the assertion type. The value is the assertion that is used to authenticate the client. When using the Client Assertion mechanism, the client secret property in the destination should be empty. Usage of header 'X-client-assertion-destination-name' is not allowed if this header is present.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-client-assertion"
+    },
+    "X_client_assertion_type": {
+     "type": "cds.String",
+     "@description": "This header provides client assertion type in OAuth2 Client Assertion Authentication flow. It can be used in pair with the 'X-client-assertion' header. The value is the format of the Client assertion as defined by the authorization server. For example, when we use JWT token as assertion the value should be 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'. Usage of header 'X-client-assertion-destination-name' is not allowed if this header is present.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-client-assertion-type"
+    },
+    "X_client_assertion_destination_name": {
+     "type": "cds.String",
+     "@description": "This header can be added in order to use client assertion mechanism for the OAuth flows. The value is the name of a destination that makes a client assertion token retrieval. This header can also override the property 'clientAssertion.destinationName' of the destination that is a target of this call. Usage of headers 'X-client-assertion' and 'X-client-assertion-type' is not allowed if this header is present.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-client-assertion-destination-name"
+    },
+    "X_fragment_name": {
+     "type": "cds.String",
+     "@description": "The name of the <b>destination fragment</b> used to override and/or extend the requested destination properties. In case of overlapping properties, the values of the fragment properties take priority over the values of the destination properties. The destination fragment must be maintained and available on the same level as the destination. Only one fragment shall be sent as part of the request.",
+     "@openapi.in": "header",
+     "@openapi.name": "X-fragment-name"
+    },
+    "_skipCredentials": {
+     "type": "cds.Boolean",
+     "@description": "Credentials are skipped in the returned destination configuration. This parameter is useful especially for OAuth destinations (such as OAuth2UserTokenExchange, OAuth2JWTBearer, OAuth2SAMLBearerAssertion). The client application actually needs the auto-retrieved token by the service, which makes the credentials optional for the application, and in certain cases it is preferred not be returned in the response.",
+     "@openapi.in": "query",
+     "@openapi.name": "$skipCredentials"
+    },
+    "_skipTokenRetrieval": {
+     "type": "cds.Boolean",
+     "@description": "If set to true, the service will skip the retrieval of the authentication token and the response will contain only the requested destination configuration. If the destination configuration is set to use mTLS for token retrieval and $skipTokenRetrieval=true, the response will also contain the content of the token service keystore.",
+     "@openapi.in": "query",
+     "@openapi.name": "$skipTokenRetrieval"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Find a Destination",
+   "@Core.Description": "Find a destination by name on all levels and return the first match",
+   "@Core.LongDescription": "Search priority is destination on service instance level. If none is found, fallbacks to subaccount level (accessible by all apps deployed in the same subaccount).",
+   "@openapi.path": "/destinations/{name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.DestinationLookUpResult"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations": {
+   "kind": "function",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@description": "A filter expression, which specifies what destinations to return. It could either be an in-list condition or a starts-with condition.\n\nAllowed only in the default mode. As such, **$filter** cannot be combined with **$select**, nor **$page**.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nRetrieves all destinations with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two destinations with names \"our team's app\" and \"workflow (new)\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app', 'workflow%20%28new%29')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountDestinations?$filter=Name+in+%28%27our%2520team%2527s%2520app%27%2c+%27workflow%2520%2528new%2529%27%29\n```\n\nNote: `Name` is the only supported field.\n\n## Starts-with condition\n\nSyntax: `$filter=startswith(Name, 'prefix')`\n\nRetrieves all destinations whose names start with the specified prefix. Any single quote inside the prefix needs to be escaped by replacing it with two consecutive single quotes. All other characters must not be escaped.\n\nFor example, for a destination with name \"(new) our team's app\", a starts-with filter could be:\n\n```\n$filter=startswith(Name, '(new) our team''s app')\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$filter"
+    },
+    "_select": {
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "Name": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name",
+     "@description": "Enable select mode, in order to retrieve only destination names. \n\nIn select mode the response changes from a list of destinations to a list of their names. Only the `Name` field is supported as a value.\n\nNote: Only one mode is allowed for a request. As such, **$select** cannot be combined with **$page**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$select"
+    },
+    "_page": {
+     "type": "cds.Integer",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": 1,
+     "@description": "Enable pagination mode and retrieve the specified page number.\n\nIn pagination mode the list of destinations is partitioned into pages of size **$pageSize** and only the specified page is returned.\nPage numbering starts from 1.\n\nNote: Only one mode is allowed for a request. As such, **$page** cannot be combined with **$select**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$page"
+    },
+    "_pageSize": {
+     "type": "cds.Integer",
+     "@description": "Number of items in each page.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageSize"
+    },
+    "_pageCount": {
+     "type": "cds.Boolean",
+    
+     "@description": "Whether to return the information about the total count of pages\nfor the request, via **Page-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageCount"
+    },
+    "_entityCount": {
+     "type": "cds.Boolean",
+    
+     "@description": "Whether to return the information about the total count of entities\nfor the request, via **Entity-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$entityCount"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Get all destinations posted on subaccount level",
+   "@Core.LongDescription": "Get a list of destinations (as a JSON array) posted on subaccount\nlevel. If none is found, an empty array is returned. Subaccount is determined\nby the passed OAuth access token.\n\nFor requests which return a large number of destinations, chunked handling of the response will be enabled. If an error occurs with the request processing while chunking is enabled, no response will be returned to the client.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.path": "/subaccountDestinations",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type0"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Destination\"},{\"$ref\":\"#/components/schemas/Destinations\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Update a destination or destinations posted on subaccount level",
+   "@Core.LongDescription": "Update (overwrite) an existing destination or destinations with a new destination (as a JSON object) or with new destinations (as a JSON array), posted on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/subaccountDestinations",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Update\"},{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}]}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Destination\"},{\"$ref\":\"#/components/schemas/Destinations\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Post a new destination or destinations on subaccount level",
+   "@Core.LongDescription": "Post a new destination (as a JSON object) or destinations (as a JSON array) on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.path": "/subaccountDestinations",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}],\"type\":\"array\"}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations_delete": {
+   "kind": "action",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app', 'workflow%20%28new%29')",
+     "@description": "A filter expression, which specifies what destinations to delete. It can only be an in-list condition.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nDeletes all destinations with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two destinations with names \"our team's app\" and \"workflow (new)\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app', 'workflow%20%28new%29')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountDestinations?$filter=Name+in+%28%27our%2520team%2527s%2520app%27%2c+%27workflow%2520%2528new%2529%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.required": true,
+     "@openapi.name": "$filter"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Delete destinations posted on subaccount level",
+   "@Core.LongDescription": "Delete destinations posted on subaccount level. Subaccount is\ndetermined by the passed OAuth access token.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/subaccountDestinations",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.BulkDelete"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations_": {
+   "kind": "function",
+   "params": {
+    "destination_name": {
+     "type": "cds.String",
+     "@description": "Destination name",
+     "@openapi.in": "path",
+     "@openapi.name": "destination name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Get a destination posted on subaccount level",
+   "@Core.LongDescription": "Get a destination (as a JSON object) posted on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.path": "/subaccountDestinations/{destination name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Destination"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinations__delete": {
+   "kind": "action",
+   "params": {
+    "destination_name": {
+     "type": "cds.String",
+     "@description": "Destination name",
+     "@openapi.in": "path",
+     "@openapi.name": "destination name"
+    }
+   },
+   "@Common.Label": "Destinations on Subaccount Level",
+   "@Core.Description": "Delete a destination posted on subaccount level",
+   "@Core.LongDescription": "Delete a destination posted on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/subaccountDestinations/{destination name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinationFragments": {
+   "kind": "function",
+   "params": {},
+   "@Common.Label": "Destination Fragments on Subaccount Level",
+   "@Core.Description": "Get all destination fragments posted on subaccount level",
+   "@Core.LongDescription": "Get a list of destination fragments (as a JSON array) posted on subaccount level. \nIf none are found, an empty array is returned. \nSubaccount is determined by the passed OAuth access token in the Authorization header.\n",
+   "@openapi.path": "/subaccountDestinationFragments",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type1"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinationFragments_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "Destination.Service._Cloud.Foundry__types.Fragment",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Subaccount Level",
+   "@Core.Description": "Update a destination fragment posted on subaccount level",
+   "@Core.LongDescription": "Overwrite an existing destination fragment (as a JSON object), posted on subaccount level. Subaccount is determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/subaccountDestinationFragments",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinationFragments_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "Destination.Service._Cloud.Foundry__types.Fragment",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Subaccount Level",
+   "@Core.Description": "Post a new destination fragment on subaccount level",
+   "@Core.LongDescription": "Post a new destination fragment (as a JSON object) on subaccount level. Subaccount is determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.path": "/subaccountDestinationFragments"
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinationFragments_": {
+   "kind": "function",
+   "params": {
+    "fragment_name": {
+     "type": "cds.String",
+     "@description": "Fragment name",
+     "@openapi.in": "path",
+     "@openapi.name": "fragment name"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Subaccount Level",
+   "@Core.Description": "Get a destination fragment posted on subaccount level",
+   "@Core.LongDescription": "Get a destination fragment (as a JSON object) posted on subaccount level. Subaccount is determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.path": "/subaccountDestinationFragments/{fragment name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Fragment"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountDestinationFragments__delete": {
+   "kind": "action",
+   "params": {
+    "fragment_name": {
+     "type": "cds.String",
+     "@description": "Fragment name",
+     "@openapi.in": "path",
+     "@openapi.name": "fragment name"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Subaccount Level",
+   "@Core.Description": "Delete a destination fragment posted on subaccount level",
+   "@Core.LongDescription": "Delete a destination fragment posted on subaccount level. Subaccount is determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/subaccountDestinationFragments/{fragment name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates": {
+   "kind": "function",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')",
+     "@description": "A filter expression, which specifies what certificates to return. It can only be an in-list condition.\n\nAllowed only in the default mode. As such, **$filter** cannot be combined with **$select**, nor **$page**.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nRetrieves all certificates with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two certificates with names \"our team's app.pem\" and \"workflow (new).pem\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountCertificates?$filter=Name+in+%28%27our%2520team%2527s%2520app.pem%27%2c+%27workflow%2520%2528new%2529.pem%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$filter"
+    },
+    "_select": {
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "Name": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name",
+     "@description": "Enable select mode, in order to retrieve only certificate names. \n\nIn select mode the response changes from a list of certificates to a list of their names. Only the `Name` field is supported as a value.\n\nNote: Only one mode is allowed for a request. As such, **$select** cannot be combined with **$page**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$select"
+    },
+    "_page": {
+     "type": "cds.Integer",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": 1,
+     "@description": "Enable pagination mode and retrieve the specified page number.\n\nIn pagination mode the list of certificates is partitioned into pages of size **$pageSize** and only the specified page is returned.\nPage numbering starts from 1.\n\nNote: Only one mode is allowed for a request. As such, **$page** cannot be combined with **$select**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$page"
+    },
+    "_pageSize": {
+     "type": "cds.Integer",
+   
+     "@description": "Number of items in each page.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageSize"
+    },
+    "_pageCount": {
+     "type": "cds.Boolean",
+    
+     "@description": "Whether to return the information about the total count of pages\nfor the request, via **Page-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageCount"
+    },
+    "_entityCount": {
+     "type": "cds.Boolean",
+    
+     "@description": "Whether to return the information about the total count of entities\nfor the request, via **Entity-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$entityCount"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Get all certificates posted on subaccount level",
+   "@Core.LongDescription": "Get all certificates (as a JSON array) posted on subaccount level.\nIn none is found, an empty array is returned. Subaccount is determined by\nthe passed OAuth access token.\n\nFor requests which return a large number of certificates, chunked handling of the response will be enabled. If an error occurs with the request processing while chunking is enabled, no response will be returned to the client.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.path": "/subaccountCertificates",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type2"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Certificate\"},{\"$ref\":\"#/components/schemas/Certificates\"},{\"$ref\":\"#/components/schemas/Attributes\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Update a certificate or certificates on subaccount level",
+   "@Core.LongDescription": "Update a certificate (base64 encoded string, as a JSON object) or certificates (base64 encoded string, as a JSON array) or certificate attributes (certificate is generated by destination service) or certificate attributes with CSR (certificate is generated by destination service via externally provided CSR. The subject DN in the CSR is ignored. Only PEM certificate can be generated.) on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/subaccountCertificates",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Update\"},{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}]}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Certificate\"},{\"$ref\":\"#/components/schemas/Certificates\"},{\"$ref\":\"#/components/schemas/Attributes\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Post a new certificate or new certificates on subaccount level",
+   "@Core.LongDescription": "Post a new certificate (base64 encoded string, as a JSON object) or new certificates (base64 encoded string, as a JSON array) or certificate attributes (certificate is generated by destination service) or certificate attributes with CSR (certificate is generated by destination service via externally provided CSR. The subject DN in the CSR is ignored. Only PEM certificate can be generated.) on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.path": "/subaccountCertificates",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}],\"type\":\"array\"}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates_delete": {
+   "kind": "action",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')",
+     "@description": "A filter expression, which specifies what certificates to delete. It can only be an in-list condition.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nDeletes all certificates with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two certificates with names \"our team's app.pem\" and \"workflow (new).pem\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountCertificates?$filter=Name+in+%28%27our%2520team%2527s%2520app.pem%27%2c+%27workflow%2520%2528new%2529.pem%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.required": true,
+     "@openapi.name": "$filter"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Delete certificates posted on subaccount level",
+   "@Core.LongDescription": "Delete certificates posted on subaccount level. Subaccount is\ndetermined by the passed OAuth access token.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/subaccountCertificates",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.BulkDelete"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates_": {
+   "kind": "function",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "subaccount id",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Get a certificate posted on subaccount level",
+   "@Core.LongDescription": "Get a certificate (base64 encoded string, as a JSON object) posted on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.path": "/subaccountCertificates/{certificate name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Certificate"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates__delete": {
+   "kind": "action",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "Subaccount id",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Delete a certificate posted on subaccount level",
+   "@Core.LongDescription": "Delete a certificate posted on subaccount level. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/subaccountCertificates/{certificate name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.subaccountCertificates__publicKeys": {
+   "kind": "function",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "Certificate name on subaccount level",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Certificates on Subaccount Level",
+   "@Core.Description": "Get the public part of a specified certificate",
+   "@Core.LongDescription": "Get a certificate chain in PEM format (Base64 encoded string, as a JSON object) of a specified certificate. In case of a keystore, the response will contain certificate chain for each alias. The public part of password-protected keystores can be retrieved only for PEM certificates and certificates generated using attributes. Subaccount is determined by the passed OAuth access token.",
+   "@openapi.path": "/subaccountCertificates/{certificate name}/publicKeys",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.PublicKeys"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations": {
+   "kind": "function",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@description": "A filter expression, which specifies what destinations to return. It could either be an in-list condition or a starts-with condition.\n\nAllowed only in the default mode. As such, **$filter** cannot be combined with **$select**, nor **$page**.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nRetrieves all destinations with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two destinations with names \"our team's app\" and \"workflow (new)\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app', 'workflow%20%28new%29')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountDestinations?$filter=Name+in+%28%27our%2520team%2527s%2520app%27%2c+%27workflow%2520%2528new%2529%27%29\n```\n\nNote: `Name` is the only supported field.\n\n## Starts-with condition\n\nSyntax: `$filter=startswith(Name, 'prefix')`\n\nRetrieves all destinations whose names start with the specified prefix. Any single quote inside the prefix needs to be escaped by replacing it with two consecutive single quotes. All other characters must not be escaped.\n\nFor example, for a destination with name \"(new) our team's app\", a starts-with filter could be:\n\n```\n$filter=startswith(Name, '(new) our team''s app')\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$filter"
+    },
+    "_select": {
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "Name": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name",
+     "@description": "Enable select mode, in order to retrieve only destination names. \n\nIn select mode the response changes from a list of destinations to a list of their names. Only the `Name` field is supported as a value.\n\nNote: Only one mode is allowed for a request. As such, **$select** cannot be combined with **$page**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$select"
+    },
+    "_page": {
+     "type": "cds.Integer",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": 1,
+     "@description": "Enable pagination mode and retrieve the specified page number.\n\nIn pagination mode the list of destinations is partitioned into pages of size **$pageSize** and only the specified page is returned.\nPage numbering starts from 1.\n\nNote: Only one mode is allowed for a request. As such, **$page** cannot be combined with **$select**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$page"
+    },
+    "_pageSize": {
+     "type": "cds.Integer",
+    
+     "@description": "Number of items in each page.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageSize"
+    },
+    "_pageCount": {
+     "type": "cds.Boolean",
+     
+     "@description": "Whether to return the information about the total count of pages\nfor the request, via **Page-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageCount"
+    },
+    "_entityCount": {
+     "type": "cds.Boolean",
+     
+     "@description": "Whether to return the information about the total count of entities\nfor the request, via **Entity-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$entityCount"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Get all destinations posted on service instance level",
+   "@Core.LongDescription": "Get all destinations (as a JSON array) on service instance level.\nIf none is found, an empty list is returned. Service instance and subaccount\nare determined the passed OAuth access token.\n\nFor requests which return a large number of destinations, chunked handling of the response will be enabled. If an error occurs with the request processing while chunking is enabled, no response will be returned to the client.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.path": "/instanceDestinations",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type3"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Destination\"},{\"$ref\":\"#/components/schemas/Destinations\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Update a destination or destinations posted on service instance level",
+   "@Core.LongDescription": "Update (overwrite) an existing destination or destinations with the passed destination (as a JSON object) or the passed destinations (as a JSON array). Service instance and subaccount are determined by the passed OAuth access token",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/instanceDestinations",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Update\"},{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}]}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Destination\"},{\"$ref\":\"#/components/schemas/Destinations\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Post a new destination or destinations on service instance level",
+   "@Core.LongDescription": "Post a new destination (as a JSON object) or destinations (as a JSON array) on service instance level. Service instance and subaccount are determined by the passed OAuth access token",
+   "@openapi.path": "/instanceDestinations",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}],\"type\":\"array\"}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations_delete": {
+   "kind": "action",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app', 'workflow%20%28new%29')",
+     "@description": "A filter expression, which specifies what destinations to delete. It can only be an in-list condition.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nDeletes all destinations with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two destinations with names \"our team's app\" and \"workflow (new)\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app', 'workflow%20%28new%29')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountDestinations?$filter=Name+in+%28%27our%2520team%2527s%2520app%27%2c+%27workflow%2520%2528new%2529%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.required": true,
+     "@openapi.name": "$filter"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Delete destinations posted on service instance level",
+   "@Core.LongDescription": "Delete destinations posted on service instance level. Service\ninstance and subaccount are determined by the passed OAuth access token.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/instanceDestinations",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.BulkDelete"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations_": {
+   "kind": "function",
+   "params": {
+    "destination_name": {
+     "type": "cds.String",
+     "@description": "Destination name",
+     "@openapi.in": "path",
+     "@openapi.name": "destination name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Get a destination posted on service instance level",
+   "@Core.LongDescription": "Get a destination (as a JSON object) posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token",
+   "@openapi.path": "/instanceDestinations/{destination name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Destination"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinations__delete": {
+   "kind": "action",
+   "params": {
+    "destination_name": {
+     "type": "cds.String",
+     "@description": "Destination name",
+     "@openapi.in": "path",
+     "@openapi.name": "destination name"
+    }
+   },
+   "@Common.Label": "Destinations on Service Instance (Subscription) Level",
+   "@Core.Description": "Delete a destination posted on service instance level",
+   "@Core.LongDescription": "Delete a destination posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/instanceDestinations/{destination name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinationFragments": {
+   "kind": "function",
+   "params": {},
+   "@Common.Label": "Destination Fragments on Service Instance (Subscription) Level",
+   "@Core.Description": "Get all destination fragments posted on service instance level",
+   "@Core.LongDescription": "Get a list of destination fragments (as a JSON array) posted on service instance level. \nIf none are found, an empty array is returned. \nService instance and subaccount are determined by the passed OAuth access token in the Authorization header.\n",
+   "@openapi.path": "/instanceDestinationFragments",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type4"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinationFragments_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "Destination.Service._Cloud.Foundry__types.Fragment",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Service Instance (Subscription) Level",
+   "@Core.Description": "Update a destination fragment posted on service instance level",
+   "@Core.LongDescription": "Overwrite an existing destination fragment (as a JSON object), posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/instanceDestinationFragments",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinationFragments_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "Destination.Service._Cloud.Foundry__types.Fragment",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Service Instance (Subscription) Level",
+   "@Core.Description": "Post a new destination fragment on service instance level",
+   "@Core.LongDescription": "Post a new destination fragment (as a JSON object) on service instance level. Service instance and subaccount are determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.path": "/instanceDestinationFragments"
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinationFragments_": {
+   "kind": "function",
+   "params": {
+    "fragment_name": {
+     "type": "cds.String",
+     "@description": "Fragment name",
+     "@openapi.in": "path",
+     "@openapi.name": "fragment name"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Service Instance (Subscription) Level",
+   "@Core.Description": "Get a destination fragment posted on service instance level",
+   "@Core.LongDescription": "Get a destination fragment (as a JSON object) posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.path": "/instanceDestinationFragments/{fragment name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Fragment"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceDestinationFragments__delete": {
+   "kind": "action",
+   "params": {
+    "fragment_name": {
+     "type": "cds.String",
+     "@description": "Fragment name",
+     "@openapi.in": "path",
+     "@openapi.name": "fragment name"
+    }
+   },
+   "@Common.Label": "Destination Fragments on Service Instance (Subscription) Level",
+   "@Core.Description": "Delete a destination fragment posted on service instance level",
+   "@Core.LongDescription": "Delete a destination fragment posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token in the Authorization header.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/instanceDestinationFragments/{fragment name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates": {
+   "kind": "function",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')",
+     "@description": "A filter expression, which specifies what certificates to return. It can only be an in-list condition.\n\nAllowed only in the default mode. As such, **$filter** cannot be combined with **$select**, nor **$page**.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nRetrieves all certificates with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two certificates with names \"our team's app.pem\" and \"workflow (new).pem\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountCertificates?$filter=Name+in+%28%27our%2520team%2527s%2520app.pem%27%2c+%27workflow%2520%2528new%2529.pem%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$filter"
+    },
+    "_select": {
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "Name": {}
+     },
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name",
+     "@description": "Enable select mode, in order to retrieve only certificate names. \n\nIn select mode the response changes from a list of certificates to a list of their names. Only the `Name` field is supported as a value.\n\nNote: Only one mode is allowed for a request. As such, **$select** cannot be combined with **$page**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$select"
+    },
+    "_page": {
+     "type": "cds.Integer",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": 1,
+     "@description": "Enable pagination mode and retrieve the specified page number.\n\nIn pagination mode the list of certificates is partitioned into pages of size **$pageSize** and only the specified page is returned.\nPage numbering starts from 1.\n\nNote: Only one mode is allowed for a request. As such, **$page** cannot be combined with **$select**, nor **$filter**.\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$page"
+    },
+    "_pageSize": {
+     "type": "cds.Integer",
+    
+     "@description": "Number of items in each page.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageSize"
+    },
+    "_pageCount": {
+     "type": "cds.Boolean",
+    
+     "@description": "Whether to return the information about the total count of pages\nfor the request, via **Page-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$pageCount"
+    },
+    "_entityCount": {
+     "type": "cds.Boolean",
+     
+     "@description": "Whether to return the information about the total count of entities\nfor the request, via **Entity-Count** response header.\n\nAllowed only in pagination mode (see **$page** query parameter).\n",
+     "@openapi.in": "query",
+     "@openapi.name": "$entityCount"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Get all certificates posted on service instance level",
+   "@Core.LongDescription": "Get all certificates (as a JSON array) posted on service instance\nlevel. If none is found, an empty list is returned. Service instance and subaccount\nare determined by the passed OAuth access token.\n\nFor requests which return a large number of certificates, chunked handling of the response will be enabled. If an error occurs with the request processing while chunking is enabled, no response will be returned to the client.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.path": "/instanceCertificates",
+   "returns": {
+    "items": {
+     "type": "Destination.Service._Cloud.Foundry_.anonymous.type5"
+    }
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates_put": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Certificate\"},{\"$ref\":\"#/components/schemas/Certificates\"},{\"$ref\":\"#/components/schemas/Attributes\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Update a certificate or certificates on service instance level",
+   "@Core.LongDescription": "Update a certificate (base64 encoded string, as a JSON object) or certificates (base64 encoded string, as a JSON array) or certificate attributes (certificate is generated by destination service) or certificate attributes with CSR (certificate is generated by destination service via externally provided CSR. The subject DN in the CSR is ignored. Only PEM certificate can be generated.) on service instance level. Service instance and subaccount is determined by the passed OAuth access token.",
+   "@openapi.method": "PUT",
+   "@openapi.path": "/instanceCertificates",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Update\"},{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}]}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates_post": {
+   "kind": "action",
+   "params": {
+    "body": {
+     "type": "common.JSON",
+     "@openapi.schema": "{\"oneOf\":[{\"$ref\":\"#/components/schemas/Certificate\"},{\"$ref\":\"#/components/schemas/Certificates\"},{\"$ref\":\"#/components/schemas/Attributes\"}]}",
+     "@openapi.in": "body"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Post a new certificate or certificates on service instance level",
+   "@Core.LongDescription": "Post a new certificate (base64 encoded string, as a JSON object) or new certificates (base64 encoded string, as a JSON array) or certificate attributes (certificate is generated by destination service) or certificate attributes with CSR (certificate is generated by destination service via externally provided CSR. The subject DN in the CSR is ignored. Only PEM certificate can be generated.) on service instance level. Service instance and subaccount are determined by the passed OAuth access token.",
+   "@openapi.path": "/instanceCertificates",
+   "returns": {
+    "type": "common.JSON",
+    "@openapi.schema": "{\"oneOf\":[{\"type\":\"array\",\"items\":{\"$ref\":\"#/components/schemas/BulkResponse\"}}],\"type\":\"array\"}"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates_delete": {
+   "kind": "action",
+   "params": {
+    "_filter": {
+     "type": "cds.String",
+     "@Core.Example.$Type": "Core.PrimitiveExampleValue",
+     "@Core.Example.Value": "Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')",
+     "@description": "A filter expression, which specifies what certificates to delete. It can only be an in-list condition.\n\n## In-list condition\n\nSyntax: `$filter=Name in (<list_of_names>)`\n\nDeletes all certificates with the specified names from the list.\nEvery name in the list of names should be [percent-encoded](https://datatracker.ietf.org/doc/html/rfc3986#section-2.1) and after that surrounded by single quotes.\n\nFor example, let's look at two certificates with names \"our team's app.pem\" and \"workflow (new).pem\".\n\nThe query parameter for them would be constructed as follows:\n\n```\n$filter=Name in ('our%20team%27s%20app.pem', 'workflow%20%28new%29.pem')\n```\n\nYou can pass this value to curl's **--data-urlencode** option and the resulting URI for the HTTP request would end like this:\n\n```\n/destination-configuration/v1/subaccountCertificates?$filter=Name+in+%28%27our%2520team%2527s%2520app.pem%27%2c+%27workflow%2520%2528new%2529.pem%27%29\n```\n\nNote: `Name` is the only supported field.\n",
+     "@openapi.in": "query",
+     "@openapi.required": true,
+     "@openapi.name": "$filter"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Deletes certificates posted on service instance level",
+   "@Core.LongDescription": "Deletes certificates posted on service instance level. Service\ninstance and subaccount are determined by the passed OAuth access token.\n\nNote: The maximum length of the `<path>?<query>#<fragment>` part of [a URI](https://tools.ietf.org/html/rfc3986#section-3) is 4000 characters.\n",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/instanceCertificates",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.BulkDelete"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates_": {
+   "kind": "function",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "Certificate name",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Get a certificate posted on service instance level",
+   "@Core.LongDescription": "Get a certificate (base64 encoded string, as a JSON object) posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token.",
+   "@openapi.path": "/instanceCertificates/{certificate name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Certificate"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates__delete": {
+   "kind": "action",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "Certificate name",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Deletes a certificate posted on service instance level",
+   "@Core.LongDescription": "Deletes a certificate posted on service instance level. Service instance and subaccount are determined by the passed OAuth access token.",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/instanceCertificates/{certificate name}",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.instanceCertificates__publicKeys": {
+   "kind": "function",
+   "params": {
+    "certificate_name": {
+     "type": "cds.String",
+     "@description": "Certificate name on instance level",
+     "@openapi.in": "path",
+     "@openapi.name": "certificate name"
+    },
+    "If_None_Match": {
+     "type": "cds.String",
+     "@description": "This header allows performing an HTTP ETag (entity tag) comparison. If provided, it would let the server determine how the request shall be processed. In case the actual server-side ETag value is different from the value passed in this header, the server responds sending the current server-state of the requested resource. Otherwise, the server responds with a status code HTTP 304 (Not Modified) and empty response body. If this header is not provided, the server responds with the current server-state of the requested resource.",
+     "@openapi.in": "header",
+     "@openapi.name": "If-None-Match"
+    }
+   },
+   "@Common.Label": "Certificates on Service Instance (Subscription) Level",
+   "@Core.Description": "Get the public part of a specified certificate",
+   "@Core.LongDescription": "Get a certificate chain in PEM format (Base64 encoded string, as a JSON object) of a specified certificate. In case of a keystore, the response will contain certificate chain for each alias. The public part of password-protected keystores can be retrieved only for PEM certificates and certificates generated using attributes. Service instance and subaccount are determined by the passed OAuth access token.",
+   "@openapi.path": "/instanceCertificates/{certificate name}/publicKeys",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.PublicKeys"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata": {
+   "kind": "function",
+   "params": {},
+   "@Common.Label": "SAML IdP Metadata XML",
+   "@Core.Description": "Get a Base64-encoded SAML IdP metadata XML, containing the active X.509 certificate and the passive X.509 certificate (if it exists)",
+   "@Core.LongDescription": "Get the SAML IdP metadata used to share configuration information between the Identity Provider (IdP) and the Service Provider (SP). Note that it's generic (contains only the certificate) and not configured for a specific scenario (i.e. CF to CF, CF to Neo etc.) which requires additional properties.",
+   "@openapi.path": "/saml2Metadata",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.IdpMetadata"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_certificate": {
+   "kind": "function",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "Get the X.509 trust certificate for subaccount.",
+   "@Core.LongDescription": "Get the X.509 trust certificate (in PEM format) for the subaccount.\nThe public key in the certificate can be used to validate SAML assertions by the target token service.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.path": "/saml2Metadata/certificate",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.TrustCertificateResponse"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_certificate_post": {
+   "kind": "action",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "Generate or renew the X.509 trust certificate for subaccount.",
+   "@Core.LongDescription": "If a trust certificate does not exist, it gets generated.\nIf it exists, it is renewed instead.\nThe new trust certificate is returned in the response.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.path": "/saml2Metadata/certificate",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.TrustCertificateResponse"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_certificate_passive": {
+   "kind": "function",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "Get the passive X.509 trust certificate for subaccount.",
+   "@Core.LongDescription": "Get the passive X.509 trust certificate (in PEM format) for the subaccount.\nThe public key in the certificate can be used to validate SAML assertions by the target token service.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.path": "/saml2Metadata/certificate/passive",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.TrustCertificateResponse"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_certificate_passive_post": {
+   "kind": "action",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "Generate or renew the passive X.509 trust certificate for subaccount.",
+   "@Core.LongDescription": "If a passive trust certificate does not exist, it gets generated.\nIf it exists, it is renewed instead.\nThe new passive trust certificate is returned in the response.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.path": "/saml2Metadata/certificate/passive",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.TrustCertificateResponse"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_certificate_passive_delete": {
+   "kind": "action",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "delete the passive X.509 trust certificate for subaccount.",
+   "@Core.LongDescription": "Delete the passive trust certificate for subaccount.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.method": "DELETE",
+   "@openapi.path": "/saml2Metadata/certificate/passive",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.Update"
+   }
+  },
+  "Destination.Service._Cloud.Foundry_.saml2Metadata_rotateCertificate_post": {
+   "kind": "action",
+   "params": {},
+   "@Common.Label": "Trust Certificate on Subaccount Level",
+   "@Core.Description": "Rotate the active and the passive X.509 trust certificates for subaccount.",
+   "@Core.LongDescription": "Rotate the active and the passive trust certificates for subaccount.\n\nSubaccount is determined by the passed OAuth access token.\n",
+   "@openapi.path": "/saml2Metadata/rotateCertificate",
+   "returns": {
+    "type": "Destination.Service._Cloud.Foundry__types.RotateTrustCertificateResponse"
+   }
+  },
+  "Destination.Service._Cloud.Foundry__types.Destination": {
+   "@description": "Destination object",
+   "elements": {
+    "Type": {
+     "@description": "Type of the destination configuration",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "HTTP": {},
+      "RFC": {},
+      "MAIL": {},
+      "LDAP": {}
+     }
+    },
+    "PropertyName": {
+     "@description": "Name of the destination property",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Destinations": {
+   "items": {
+    "type": "Destination.Service._Cloud.Foundry__types.Destination"
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Certificate": {
+   "@description": "Certificate/Keystore",
+   "elements": {
+    "Type": {
+     "@description": "Type of the object. Could be null if not present",
+     "type": "cds.String"
+    },
+    "Content": {
+     "@description": "Base64 encoded keystore/certificate binary content",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Certificates": {
+   "items": {
+    "type": "Destination.Service._Cloud.Foundry__types.Certificate"
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Fragment": {
+   "@description": "Fragment object",
+   "elements": {
+    "FragmentName": {
+     "@description": "Name of the fragment configuration",
+     "type": "cds.String"
+    },
+    "PropertyName": {
+     "@description": "Name of the fragment property",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Fragments": {
+   "items": {
+    "type": "Destination.Service._Cloud.Foundry__types.Fragment"
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Attributes": {
+   "@description": "Certificate filename and certificate attributes",
+   "elements": {
+    "Type": {
+     "@description": "Type of the object. Could be null if not present or PEM",
+     "type": "cds.String"
+    },
+    "Attributes": {
+     "@description": "Certificate validity and CN",
+     "elements": {
+      "CN": {
+       "@description": "Certificate common name",
+       "type": "cds.String"
+      },
+      "CSR": {
+       "@description": "Certificate signing request (base64 encoded PEM)",
+       "type": "cds.String"
+      },
+      "Validity": {
+       "@description": "Certificate validity",
+       "elements": {
+        "TimeUnit": {
+         "@description": "validity time unit",
+         "type": "cds.String",
+         "@assert.range": true,
+         "enum": {
+          "DAYS": {},
+          "MONTHS": {},
+          "YEARS": {}
+         }
+        },
+        "Value": {
+         "@description": "value for the validity time unit",
+         "type": "cds.Integer"
+        }
+       }
+      },
+      "AutomaticRenew": {
+       "@description": "Enable automatic certificate renew when the certificate is close to expiring.",
+       "type": "cds.Boolean",
+       "default": {
+        "val": false
+       }
+      },
+      "Password": {
+       "@description": "Password which protects the generated private key (in case of pem) or keystore.",
+       "type": "cds.String"
+      }
+     }
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.PublicKey": {
+   "@description": "Certificate/Keystore",
+   "elements": {
+    "Alias": {
+     "@description": "Alias of a certificate from the keystore. This attribute will not be present when the input is not a keystore.",
+     "type": "cds.String"
+    },
+    "Content": {
+     "@description": "Base64 encoded certificate chain in PEM format",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.PublicKeys": {
+   "items": {
+    "type": "Destination.Service._Cloud.Foundry__types.PublicKey"
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.AuthToken": {
+   "@description": "Authorization Token",
+   "elements": {
+    "type": {
+     "@description": "Type of the token. \"Basic\", \"Bearer\" etc.",
+     "type": "cds.String"
+    },
+    "value": {
+     "@description": "Base64 encoded token binary content",
+     "type": "cds.String"
+    },
+    "refresh_token": {
+     "@description": "Base64 encoded refresh token binary content",
+     "type": "cds.String"
+    },
+    "http_header": {
+     "type": "Destination.Service._Cloud.Foundry__types.HttpHeader"
+    },
+    "scope": {
+     "@description": "The scopes issued with the token. The value of the scope parameter is expressed as a list of space-delimited strings. For example \"read write execute\"",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.DestinationLookUpResult": {
+   "@description": "Contains the owner, found destination, certificates (if present) and authorization token (if present)",
+   "elements": {
+    "owner": {
+     "type": "Destination.Service._Cloud.Foundry__types.Owner"
+    },
+    "destinationConfiguration": {
+     "type": "Destination.Service._Cloud.Foundry__types.Destination"
+    },
+    "certificates": {
+     "items": {
+      "type": "Destination.Service._Cloud.Foundry__types.Certificate"
+     }
+    },
+    "authTokens": {
+     "items": {
+      "type": "Destination.Service._Cloud.Foundry__types.AuthToken"
+     }
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Owner": {
+   "@description": "Subaccount id and instance id could have null value but not both at the same time",
+   "elements": {
+    "SubaccountId": {
+     "@description": "Subaccount id",
+     "type": "cds.String"
+    },
+    "InstanceId": {
+     "@description": "Instance id",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Error": {
+   "@description": "Error message",
+   "type": "cds.String",
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.JsonErrorMessage": {
+   "elements": {
+    "ErrorMessage": {
+     "@description": "What went wrong",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.Update": {
+   "elements": {
+    "Count": {
+     "@description": "The number of effected records",
+     "type": "cds.Integer"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.HttpHeader": {
+   "@description": "Prepared HTTP Header with appropriate authorization (token type) scheme and token",
+   "elements": {
+    "key": {
+     "@description": "Key of the header. \"Authorization\", \"Cookie\" etc.",
+     "type": "cds.String"
+    },
+    "value": {
+     "@description": "The appropriate authorization scheme (token type) and token using the correct separator",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.NameOnly": {
+   "@description": "Configuration JSON object, containing only the ```Name``` field.",
+   "elements": {
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.BulkDeleteSummaryElement": {
+   "elements": {
+    "status": {
+     "@description": "The status of the operation for this configuration",
+     "type": "cds.String",
+     "@assert.range": true,
+     "enum": {
+      "DELETED": {},
+      "NOT_FOUND": {}
+     }
+    },
+    "reason": {
+     "@description": "This field is only present when the status is \"NOT_FOUND\" and represents the reason for this status",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.BulkDelete": {
+   "type": "cds.String",
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.BulkResponse": {
+   "elements": {
+    "status": {
+     "@description": "Status code",
+     "type": "cds.Integer"
+    },
+    "etag": {
+     "@description": "Current server-side ETag value of the resource.",
+     "type": "cds.String"
+    },
+    "cause": {
+     "@description": "Cause error description",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.IdpMetadata": {
+   "elements": {
+    "idpMetadata": {
+     "@description": "SAML IdP metadata, containing the active X.509 certificate and the passive X.509 certificate (if it exists)",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.TrustCertificateResponse": {
+   "elements": {
+    "certificate": {
+     "@description": "X.509 trust certificate in PEM format",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry__types.RotateTrustCertificateResponse": {
+   "elements": {
+    "activeCertificate": {
+     "@description": "X.509 trust certificate in PEM format",
+     "type": "cds.String"
+    },
+    "passiveCertificate": {
+     "@description": "X.509 trust certificate in PEM format",
+     "type": "cds.String"
+    }
+   },
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type0": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Destination",
+    "Destination.Service._Cloud.Foundry__types.NameOnly"
+   ],
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type1": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Fragment"
+   ],
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type2": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Certificate",
+    "Destination.Service._Cloud.Foundry__types.NameOnly"
+   ],
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type3": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Destination",
+    "Destination.Service._Cloud.Foundry__types.NameOnly"
+   ],
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type4": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Fragment"
+   ],
+   "kind": "type"
+  },
+  "Destination.Service._Cloud.Foundry_.anonymous.type5": {
+   "elements": {},
+   "includes": [
+    "Destination.Service._Cloud.Foundry__types.Certificate",
+    "Destination.Service._Cloud.Foundry__types.NameOnly"
+   ],
+   "kind": "type"
+  },
+  "common.JSON": {
+   "kind": "type",
+   "type": "cds.LargeString"
+  }
+ },
+ "meta": {
+  "creator": "cds-import-openapi"
+ }
+}

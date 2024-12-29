@@ -1,0 +1,146 @@
+{
+  "name": "sbpatenant1",
+  "version": "1.0.0",
+  "description": "A simple CAP project.",
+  "repository": "<Add your repository here>",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@cap-js-community/odata-v2-adapter": "^1.13.4",
+    "@cap-js/hana": "^1",
+    "@sap-cloud-sdk/http-client": "^3.20.0",
+    "@sap-cloud-sdk/resilience": "^3.20.0",
+    "@sap/cds": "^8.3.0",
+    "@sap/cds-odata-v2-adapter-proxy": "^1.9.21",
+    "@sap/hdi-deploy": "^5.3.2",
+    "@sap/xssec": "^4",
+    "axios": "^1.7.7",
+    "express": "^4",
+    "hdb": "^0.19.10",
+    "in": "^0.19.0",
+    "project": "^0.1.6"
+  },
+  "devDependencies": {
+    "@cap-js/cds-types": "^0.6",
+    "@cap-js/sqlite": "^1",
+    "@sap/cds-dk": "^8"
+  },
+  "scripts": {
+    "start": "cds-serve"
+  },
+  "cds": {
+    "requires": {
+      "DestinationService": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "DestinationService",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant1": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant1",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant2": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant2",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant3": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant3",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant4": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant4",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant5": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant5",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant6": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant6",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant7": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant7",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant8": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant8",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant9": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant9",
+          "requestTimeout": "30000"
+        }
+      },
+      "SBPATenant10": {
+        "kind": "odata",
+        "csrf": true,
+        "csrfInBatch": true,
+        "credentials": {
+          "destination": "SBPATenant10",
+          "requestTimeout": "30000"
+        }
+      },
+      "[production]": {
+        "db": "hana",
+        "auth": "dummy"
+      },
+      "Workflow": {
+        "kind": "rest",
+        "model": "srv/external/SPA_Workflow_Runtime"
+      },
+      "Destination.Service._Cloud.Foundry_": {
+        "kind": "rest",
+        "model": "srv/external/SAP_CP_CF_Connectivity_Destination"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+###
+GET   http://localhost:4004/odata/v4/external/changestatus(tenants='SBPATenant3%2CSBPATenant2',ids='5f89db3a-8227-11ef-a681-eeee0a8dc054',status='RUNNING')
+###
+POST http://localhost:4004/odata/v4/external/CreateDestination
+Content-Type: application/json
+
+{
+    "dest_url": "https://example.com",
+    "client_ID": "client8",
+    "client_secret": "secret8",
+    "token_srv_url": "https://token2.example.com"
+}
